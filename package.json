@@ -2,7 +2,7 @@
   "name": "vrf-rest",
   "version": "0.0.0",
   "description": "REST middleware for vrf form engine",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jest --no-cache",
     "build": "coffee -o lib/ -c src/",
