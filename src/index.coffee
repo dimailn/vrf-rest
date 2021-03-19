@@ -1,14 +1,14 @@
-camelCase = require 'lodash.camelcase'
-cloneDeep = require 'lodash.clonedeep'
-pluralize = require 'pluralize'
-{decamelize} = require 'humps'
-{default: serializeDates} = require 'rails-serialize-dates'
-{default: parseDates}     = require 'rails-parse-dates'
-urljoin = require 'url-join'
-clientAdapters = require './client-adapters'
+import camelCase from 'lodash.camelcase'
+import cloneDeep from 'lodash.clonedeep'
+import pluralize from 'pluralize'
+import {decamelize} from 'humps'
+import serializeDates from 'rails-serialize-dates'
+import parseDates     from 'rails-parse-dates'
+import urljoin from 'url-join'
+import clientAdapters from './client-adapters'
 
 
-module.exports = (
+export default (
   {
     showErrorMessage
     baseUrl = '/'

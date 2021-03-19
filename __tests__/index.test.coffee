@@ -1,6 +1,6 @@
-VrfRest = require '../src'
-axios = require "axios"
-MockAdapter = require "axios-mock-adapter"
+import VrfRest from '../src'
+import axios from "axios"
+import MockAdapter from "axios-mock-adapter"
 
 
 mock = new MockAdapter(axios)
@@ -8,7 +8,6 @@ mock = new MockAdapter(axios)
 mock.onGet("/todos/1.json").reply(200,  { id: 1, title: 'Something' })
 mock.onGet("/todos/2.json").reply(200,  { id: 2, title: 'Test' })
 mock.onPost("/todos.json").reply((config) ->
-  console.log config
   title = JSON.parse(config.data).todo.title
   return [
     200
