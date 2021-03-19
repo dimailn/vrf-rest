@@ -65,7 +65,7 @@ export default (
   baseUrlWithNamespace: ->
     return baseUrl unless @form.namespace
 
-    urljoin(baseUrl, namespace)
+    urljoin(baseUrl, @form.namespace)
 
   resourceUrl: (id = @id()) ->
     urljoin(
