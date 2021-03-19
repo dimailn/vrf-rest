@@ -72,7 +72,7 @@ export default (
       @baseUrlWithNamespace()
 
       if @isSingleResource()
-        @_resourcesName()
+        @_resourceName()
       else
         urljoin(@_resourcesName(), id.toString())
     ) + '.json'
@@ -84,7 +84,10 @@ export default (
     ) + '.json'
 
   _resourcesName: ->
-    pluralize decamelize @name.split("::")[0]
+    pluralize @_resourceName()
+
+  _resourceName: ->
+    decamelize @name.split("::")[0]
 
   save: ->
     try
