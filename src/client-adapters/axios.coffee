@@ -5,4 +5,10 @@ module.exports = {
     this.$http.post(args...).then(({data}) -> data)
   patch: (args...) ->
     this.$http.patch(args...).then(({data}) -> data)
+
+  statusAndDataFromException: (e) ->
+    {
+      status: e.response.status
+      data: e.response.data
+    }
 }

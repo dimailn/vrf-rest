@@ -86,8 +86,39 @@ describe 'VrfRest', ->
     mock.onPatch("/todos/1.json").reply(200,  { id: 1, title: 'Test2' })
 
 
-    resource = await vrfRest.save()
+    await vrfRest.save()
 
     expect(setSyncProp).toBeCalledWith('resource', {id: 1, title: 'Test2'})
+
+  it 'handles errors', ->
+    VrfRestMiddleware = VrfRest(
+      idFromRoute: -> 1
+    )
+
+    setSyncProp = jest.fn()
+
+    resource = {
+      id: 1
+      title: 'Test2'
+    }
+
+    CreateFormMock = {
+      ...FormMock
+      resource
+      preserialize: -> resource
+      setSyncProp
+      $set: (obj, field, value) -> obj[field] = value
+    }
+
+    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+
+    mock.onGet("/todos/1.json").reply(200,  { id: 1, title: 'Test2' })
+    mock.onPatch("/todos/1.json").reply(422,  errors: { title: ['Is incorrect'] })
+
+
+    [ok, errors] = await vrfRest.save()
+
+    expect(ok).toBe false
+    expect(errors).toEqual(title: ['Is incorrect'])
 
 

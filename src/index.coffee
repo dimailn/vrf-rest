@@ -112,8 +112,9 @@ export default (
 
       return [true, null]
     catch e
-      if e.status
-        return [false, @handleErrors(e.body.errors)]
+      {status, data} = @clientAdapterInstance().statusAndDataFromException(e)
+      if status
+        return [false, @handleErrors(data.errors)]
       else
         throw e
 
@@ -138,8 +139,8 @@ export default (
     for field, error of errors
       if field is 'base' then baseErrors.push error
 
-      @form.$set $errors, field, [] unless $errorsHash[field]?
-      $errorsHash[field].push error[0]
+      @form.$set errorsHash, field, [] unless errorsHash[field]?
+      errorsHash[field].push error[0]
 
     @showErrorMessage(baseErrors) if baseErrors.length
 
