@@ -11,4 +11,14 @@ module.exports = {
       status: e.response.status
       data: e.response.data
     }
+
+  executeAction: (url, {method, data, params}) ->
+    this.$http(
+      {
+        method,
+        url,
+        data,
+        params
+      }
+    )
 }

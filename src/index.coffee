@@ -145,3 +145,11 @@ export default (
     @showErrorMessage(baseErrors) if baseErrors.length
 
     errorsHash
+
+  executeAction: (name, {params, data, method}) ->
+    url = @resourceUrl()
+
+    url = urljoin(url, decamelize(method)) if method
+
+    @clientAdapterInstance().executeAction(url, {method, data, params})
+
