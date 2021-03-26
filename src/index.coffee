@@ -75,7 +75,10 @@ export default (
         @_resourceName()
       else
         urljoin(@_resourcesName(), id.toString())
-    ) + '.json'
+    )
+
+  resourceUrlWithJson: (id = @id()) ->
+    @resourceUrl() + '.json'
 
   collectionUrl: ->
     urljoin(
@@ -104,7 +107,7 @@ export default (
             resource = await @load(id)
             @form.setSyncProp 'resource', resource
       else
-        await @clientAdapterInstance().patch(@resourceUrl(), body)
+        await @clientAdapterInstance().patch(@resourceUrlWithJson(), body)
 
         unless @form.noFetch
           resource = await @load(id)
@@ -149,7 +152,7 @@ export default (
   executeAction: (name, {params, data, method}) ->
     url = @resourceUrl()
 
-    url = urljoin(url, decamelize(method)) if method
+    url = urljoin(url, decamelize(name)) if name
 
     @clientAdapterInstance().executeAction(url, {method, data, params})
 
