@@ -152,7 +152,7 @@ export default (
 
     postfix = url || name
 
-    actionUrl = urljoin(resourceUrl, decamelize(name)) if postfix
+    actionUrl = urljoin(resourceUrl, decamelize(postfix)) if postfix
 
     @clientAdapterInstance().executeAction(actionUrl, {method, data, params})
       .then(
