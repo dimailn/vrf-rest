@@ -1,6 +1,6 @@
 {
   "name": "vrf-rest",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "REST middleware for vrf form engine",
   "main": "lib/index.js",
   "scripts": {
