@@ -10,7 +10,8 @@ import clientAdapters from './client-adapters'
 
 export default (
   {
-    showErrorMessage
+    showErrorMessage = (message) -> console.error(message)
+    showSuccessMessage = (message) -> console.log(message)
     baseUrl = '/'
     idFromRoute = (form) -> form.$route.params.id
     client = 'axios'
@@ -126,10 +127,7 @@ export default (
   transformPlain: (object) -> parseDates(object)
 
   showErrorMessage: (errors) ->
-    if showErrorMessage?
-      showErrorMessage(errors)
-    else
-      console.error(errors)
+    showErrorMessage(errors.join(";"))
 
   handleErrors: (errors) ->
     errorsHash = {}
@@ -149,10 +147,24 @@ export default (
 
     errorsHash
 
-  executeAction: (name, {params, data, method}) ->
+  executeAction: (name, {params, data, method, url}) ->
     url = @resourceUrl()
 
-    url = urljoin(url, decamelize(name)) if name
+    postfix = url || name
+
+    url = urljoin(url, decamelize(name)) if postfix
 
     @clientAdapterInstance().executeAction(url, {method, data, params})
+      .then(
+        ({status, data}) => 
+          showSuccessMessage(data.$message) if data.$message
+          {status, data}
+      )
+      .catch(
+        ({status, data}) =>
+          showErrorMessage(data.$message) if data.$message
+
+          Promise.reject({status, data})
+      )
+
 
