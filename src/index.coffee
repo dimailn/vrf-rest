@@ -148,13 +148,13 @@ export default (
     errorsHash
 
   executeAction: (name, {params, data, method, url}) ->
-    url = @resourceUrl()
+    resourceUrl = @resourceUrl()
 
     postfix = url || name
 
-    url = urljoin(url, decamelize(name)) if postfix
+    actionUrl = urljoin(resourceUrl, decamelize(name)) if postfix
 
-    @clientAdapterInstance().executeAction(url, {method, data, params})
+    @clientAdapterInstance().executeAction(actionUrl, {method, data, params})
       .then(
         ({status, data}) => 
           showSuccessMessage(data.$message) if data?.$message
