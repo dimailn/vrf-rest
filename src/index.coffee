@@ -157,12 +157,12 @@ export default (
     @clientAdapterInstance().executeAction(url, {method, data, params})
       .then(
         ({status, data}) => 
-          showSuccessMessage(data.$message) if data.$message
+          showSuccessMessage(data.$message) if data?.$message
           {status, data}
       )
       .catch(
         ({status, data}) =>
-          showErrorMessage(data.$message) if data.$message
+          showErrorMessage(data.$message) if data?.$message
 
           Promise.reject({status, data})
       )
