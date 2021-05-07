@@ -54,11 +54,25 @@ export default (
     )
 
   load: (id) ->
-    @clientAdapterInstance().get(@resourceUrl(id)).then((body) => @transformPlain body)
+    @clientAdapterInstance().get(@resourceUrlWithJson(id)).then((body) => @transformPlain body)
 
-  loadSources: ->
-    # TODO: implement
-    Promise.resolve()
+  loadSources: (names) ->
+    # TODO: implement batching
+
+    sources = await Promise.all(
+      names.map((name) => [name, await @loadSource(name)])
+    )
+
+    sources.reduce(
+      (index, [name, source]) =>
+        index[name] = source
+        index
+      {}
+    )
+
+
+  loadSource: (name) ->
+    @clientAdapterInstance().get(urljoin(baseUrl, name) + ".json").then((body) => body.map(@transformPlain))
 
   resourceName: ->
     camelCase @name.split("::")[0]
@@ -79,7 +93,7 @@ export default (
     )
 
   resourceUrlWithJson: (id = @id()) ->
-    @resourceUrl() + '.json'
+    @resourceUrl(id) + '.json'
 
   collectionUrl: ->
     urljoin(
@@ -118,7 +132,7 @@ export default (
     catch e
       {status, data} = @clientAdapterInstance().statusAndDataFromException(e)
       if status
-        return [false, @handleErrors(data.errors)]
+        return [false, @handleErrors(data?.errors || ["HTTP error #{status}"])]
       else
         throw e
 

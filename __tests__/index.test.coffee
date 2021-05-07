@@ -18,6 +18,23 @@ mock.onPost("/todos.json").reply((config) ->
   ]
 )
 
+mock.onGet("/types.json").reply(200, [
+  {
+    id: 0,
+    title: 'type 1'
+  }
+  {
+    id: 1
+    title: 'type 2'
+  }
+])
+
+mock.onGet("/categories.json").reply(200, [
+  {
+    id: 1
+    title: 'category 1'
+  }
+])
 
 vrfRest = null
 FormMock = {
@@ -38,6 +55,12 @@ describe 'VrfRest', ->
     resource = await vrfRest.load()
 
     expect(resource).toEqual({ id: 1, title: 'Something' })
+
+  it 'loads sources', ->
+    sources = await vrfRest.loadSources(['types', 'categories'])
+
+    expect(sources.types.length).toBe 2
+    expect(sources.categories.length).toBe 1
 
   it 'creates resource', ->
     VrfRestMiddleware = VrfRest(

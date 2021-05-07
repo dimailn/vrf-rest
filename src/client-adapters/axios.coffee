@@ -7,6 +7,8 @@ module.exports = {
     this.$http.patch(args...).then(({data}) -> data)
 
   statusAndDataFromException: (e) ->
+    return {} unless e.response
+    
     {
       status: e.response.status
       data: e.response.data
