@@ -16,7 +16,7 @@
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",
     "pluralize": "^8.0.0",
-    "rails-parse-dates": "^0.1.0",
+    "rails-parse-dates": "^1.0.0",
     "rails-serialize-dates": "^0.2.0",
     "url-join": "^4.0.1"
   },
