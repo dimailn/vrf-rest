@@ -72,6 +72,8 @@ export default (
 
 
   loadSource: (name) ->
+    name = decamelize(name)
+
     @clientAdapterInstance().get(urljoin(baseUrl, name) + ".json").then((body) => body.map(@transformPlain))
 
   resourceName: ->
@@ -170,14 +172,14 @@ export default (
 
     @clientAdapterInstance().executeAction(actionUrl, {method, data, params})
       .then(
-        ({status, data}) => 
+        ({status, data}) =>
           showSuccessMessage(data.$message) if data?.$message
           {status, data}
       )
       .catch(
         (e) =>
           {status, data} = @clientAdapterInstance().statusAndDataFromException(e)
-          
+
           showErrorMessage(data.$message) if data?.$message
 
           Promise.reject({status, data})
