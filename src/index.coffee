@@ -16,6 +16,7 @@ export default (
     idFromRoute = (form) -> form.$route.params.id
     client = 'axios'
     clientAdapter = clientAdapters[client]
+    useJsonPostfix = true
   } = {}
 ) -> class VrfRest
   # We can always generate a request for REST
@@ -74,7 +75,10 @@ export default (
   loadSource: (name) ->
     name = decamelize(name)
 
-    @clientAdapterInstance().get(urljoin(baseUrl, name) + ".json").then((body) => body.map(@transformPlain))
+    sourceUrl = urljoin(baseUrl, name) 
+    sourceUrl += ".json" if useJsonPostfix
+
+    @clientAdapterInstance().get(sourceUrl).then((body) => body.map(@transformPlain))
 
   resourceName: ->
     camelCase @name.split("::")[0]
@@ -95,13 +99,18 @@ export default (
     )
 
   resourceUrlWithJson: (id = @id()) ->
+    return @resourceUrl(id) unless useJsonPostfix
+
     @resourceUrl(id) + '.json'
 
   collectionUrl: ->
-    urljoin(
+    collectionUrl = urljoin(
       @baseUrlWithNamespace()
       @_resourcesName()
-    ) + '.json'
+    ) 
+    return collectionUrl unless useJsonPostfix
+
+    collectionUrl + '.json'
 
   _resourcesName: ->
     pluralize @_resourceName()
