@@ -10,8 +10,8 @@ import clientAdapters from './client-adapters'
 
 export default (
   {
-    showErrorMessage = (message) -> console.error(message)
-    showSuccessMessage = (message) -> console.log(message)
+    showErrorMessage = console.error
+    showSuccessMessage = console.log
     baseUrl = '/'
     idFromRoute = (form) -> form.$route.params.id
     client = 'axios'
@@ -40,7 +40,7 @@ export default (
     if @form.implicit
       ///#{decamelize pluralize @name.split("::")[0]}\/new///.test(location.pathname)
     else
-      !@rfId()
+      !@id()
 
   clientAdapterInstance: ->
     clientAdapterContext = {
@@ -55,6 +55,10 @@ export default (
     )
 
   load: (id) ->
+    return Promise.resolve(@form.$resource) if !id && @isNew()
+
+    id ||= @id()
+
     @clientAdapterInstance().get(@resourceUrlWithJson(id)).then((body) => @transformPlain body)
 
   loadSources: (names) ->
@@ -75,7 +79,7 @@ export default (
   loadSource: (name) ->
     name = decamelize(name)
 
-    sourceUrl = urljoin(baseUrl, name) 
+    sourceUrl = urljoin(baseUrl, name)
     sourceUrl += ".json" if useJsonPostfix
 
     @clientAdapterInstance().get(sourceUrl).then((body) => body.map(@transformPlain))
@@ -107,7 +111,7 @@ export default (
     collectionUrl = urljoin(
       @baseUrlWithNamespace()
       @_resourcesName()
-    ) 
+    )
     return collectionUrl unless useJsonPostfix
 
     collectionUrl + '.json'

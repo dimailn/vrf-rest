@@ -62,12 +62,33 @@ describe 'VrfRest', ->
     expect(sources.types.length).toBe 2
     expect(sources.categories.length).toBe 1
 
-  it 'creates resource', ->
+  it 'doesnt load data if new entity', ->
     VrfRestMiddleware = VrfRest(
       idFromRoute: -> null
     )
 
-    setSyncProp = jest.fn()
+    getSpy = jest.spyOn(axios, 'get')
+
+    CreateFormMock = {
+      ...FormMock
+      setSyncProp: jest.fn()
+      $resource: {
+        title: ''
+      }
+    }
+
+    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+
+    result = await vrfRest.load()
+
+    expect(result).toBe(CreateFormMock.$resource)
+    expect(CreateFormMock.setSyncProp).not.toBeCalled()
+    expect(getSpy).not.toBeCalled()
+
+  it 'creates resource', ->
+    VrfRestMiddleware = VrfRest(
+      idFromRoute: -> null
+    )
 
     CreateFormMock = {
       ...FormMock
@@ -75,32 +96,28 @@ describe 'VrfRest', ->
         {
           title: 'Test'
         }
-      setSyncProp
+      setSyncProp: jest.fn()
     }
 
     vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
 
     await vrfRest.save()
 
-    expect(setSyncProp).toBeCalledWith('resource', {id: 2, title: 'Test'})
+    expect(CreateFormMock.setSyncProp).toBeCalledWith('resource', {id: 2, title: 'Test'})
 
   it 'updates resource', ->
     VrfRestMiddleware = VrfRest(
       idFromRoute: -> 1
     )
 
-    setSyncProp = jest.fn()
-
-    resource = {
-      id: 1
-      title: 'Test2'
-    }
-
     CreateFormMock = {
       ...FormMock
-      resource
-      preserialize: -> resource
-      setSyncProp
+      resource: {
+        id: 1
+        title: 'Test2'
+      }
+      preserialize: -> @resource
+      setSyncProp: jest.fn()
     }
 
     vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
@@ -111,25 +128,21 @@ describe 'VrfRest', ->
 
     await vrfRest.save()
 
-    expect(setSyncProp).toBeCalledWith('resource', {id: 1, title: 'Test2'})
+    expect(CreateFormMock.setSyncProp).toBeCalledWith('resource', {id: 1, title: 'Test2'})
 
   it 'handles errors', ->
     VrfRestMiddleware = VrfRest(
       idFromRoute: -> 1
     )
 
-    setSyncProp = jest.fn()
-
-    resource = {
-      id: 1
-      title: 'Test2'
-    }
-
     CreateFormMock = {
       ...FormMock
-      resource
-      preserialize: -> resource
-      setSyncProp
+      resource: {
+        id: 1
+        title: 'Test2'
+      }
+      preserialize: -> @resource
+      setSyncProp: jest.fn()
       $set: (obj, field, value) -> obj[field] = value
     }
 
