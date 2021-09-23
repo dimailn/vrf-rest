@@ -52,6 +52,17 @@ beforeEach ->
 
 describe 'VrfRest', ->
   it 'loads data', ->
+    VrfRestMiddleware = VrfRest(
+      idFromRoute: -> 1
+    )
+
+    CreateFormMock = {
+      ...FormMock
+      implicit: true
+    }
+
+    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+
     resource = await vrfRest.load()
 
     expect(resource).toEqual({ id: 1, title: 'Something' })
@@ -104,6 +115,30 @@ describe 'VrfRest', ->
     await vrfRest.save()
 
     expect(CreateFormMock.setSyncProp).toBeCalledWith('resource', {id: 2, title: 'Test'})
+
+  it 'creates resource and redirect', ->
+    redirectTo = jest.fn()
+
+    VrfRestMiddleware = VrfRest(
+      idFromRoute: -> null
+      redirectTo: redirectTo
+    )
+
+    CreateFormMock = {
+      ...FormMock
+      preserialize: ->
+        {
+          title: 'Test'
+        }
+      setSyncProp: jest.fn()
+      implicit: true
+    }
+
+    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+
+    await vrfRest.save()
+
+    expect(redirectTo).toBeCalledWith("/todos/2")
 
   it 'updates resource', ->
     VrfRestMiddleware = VrfRest(

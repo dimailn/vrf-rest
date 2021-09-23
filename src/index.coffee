@@ -14,6 +14,7 @@ export default (
     showSuccessMessage = console.log
     baseUrl = '/'
     idFromRoute = (form) -> form.$route.params.id
+    redirectTo = (path, form) -> form.$router.push(path)
     client = 'axios'
     clientAdapter = clientAdapters[client]
     useJsonPostfix = true
@@ -32,15 +33,15 @@ export default (
     @form.resource?.id || @form.rfId
 
   id: ->
-    @rfId() || idFromRoute(@form)
+    if @form.implicit
+      idFromRoute(@form)
+    else
+      @rfId()
 
   isNew: ->
     return false if @isSingleResource()
 
-    if @form.implicit
-      ///#{decamelize pluralize @name.split("::")[0]}\/new///.test(location.pathname)
-    else
-      !@id()
+    !@id()
 
   clientAdapterInstance: ->
     clientAdapterContext = {
@@ -130,8 +131,8 @@ export default (
       if @isNew()
         {id} = await @clientAdapterInstance().post(@collectionUrl(), body)
 
-        if @implicit
-          @form.router.push("/#{@_resourcesName()}/#{id}")
+        if @form.implicit
+          redirectTo("/#{@_resourcesName()}/#{id}")
         else
           unless @form.noFetch
             resource = await @load(id)
