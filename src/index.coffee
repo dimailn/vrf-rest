@@ -132,7 +132,7 @@ export default (
         {id} = await @clientAdapterInstance().post(@collectionUrl(), body)
 
         if @form.implicit
-          redirectTo("/#{@_resourcesName()}/#{id}")
+          redirectTo("/#{@_resourcesName()}/#{id}", @form)
         else
           unless @form.noFetch
             resource = await @load(id)
