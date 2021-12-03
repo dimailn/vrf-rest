@@ -34,16 +34,18 @@ export default (
       onLoadSource,
       onLoadSources,
       onExecuteAction,
-      emit,
-      urlResourceName,
-      urlResourceCollectionName
+      showMessage,
+      strings: {
+        urlResourceName,
+        urlResourceCollectionName
+      }
     }){
-      const showErrorMessage = (text) => emit("message", {
+      const showErrorMessage = (text: string) => showMessage({
         type: 'error',
         text
       })
 
-      const showSuccessMessage = (text) => emit("message", {
+      const showSuccessMessage = (text: string) => showMessage({
         type: 'error',
         text
       })
