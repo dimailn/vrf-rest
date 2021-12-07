@@ -2,10 +2,6 @@ import {
   decamelize
 } from 'humps';
 
-import serializeDates from 'rails-serialize-dates'
-
-import parseDates from 'rails-parse-dates'
-
 import urljoin from 'url-join'
 
 import clientAdapters from './client-adapters'
@@ -66,10 +62,6 @@ export default (
         return collectionUrl + '.json'
       }
 
-      const transformResource = (resource) => serializeDates(resource)
-  
-      const transformPlain = (object) => parseDates(object)
-
       const concatAndShowErrorMessage = (errors) => showErrorMessage(errors.join(";"))
 
       const clientAdapterInstance = () => {
@@ -116,18 +108,14 @@ export default (
         if (useJsonPostfix) {
           sourceUrl += ".json"
         }
-        return clientAdapterInstance().get(sourceUrl).then((body: Array<any>) => {
-          return body.map(transformPlain)
-        })
+        return clientAdapterInstance().get(sourceUrl)
       }
 
-      const aroundSave = async <T>(saver: (body: object) => Promise<T>) : Promise<[boolean, any]> => {
+      const aroundSave = async <T>(resource: object, saver: (body: object) => Promise<T>) : Promise<[boolean, any]> => {
         try {
-          const resource = transformResource(form.preserialize())
           const body = {
             [`${form.rootName || decamelize(form.name)}`]: resource
           }
-
           return [true, await saver(body)]
         } catch (e) {
           const {status, data} = clientAdapterInstance().statusAndDataFromException(e)
@@ -155,21 +143,19 @@ export default (
           return Promise.resolve({})
         }
     
-        return clientAdapterInstance().get(resourceUrlWithJson(id)).then((body) => {
-          return transformPlain(body);
-        })
+        return clientAdapterInstance().get(resourceUrlWithJson(id))
       })
 
-      onCreate(async () => {
-        return aroundSave<Id>(async (body: object) => {
+      onCreate(async (resource) => {
+        return aroundSave<Id>(resource, async (body: object) => {
           const {id} = await clientAdapterInstance().post(collectionUrl(), body)
 
           return id
         })
       })
 
-      onUpdate(async () => {
-        return aroundSave<object>(async (body: object) => {
+      onUpdate(async (resource) => {
+        return aroundSave<object>(resource, async (body: object) => {
           return clientAdapterInstance().patch(resourceUrlWithJson(form.resourceId()), body)
         })
       })
