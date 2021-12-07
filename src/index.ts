@@ -16,8 +16,7 @@ import {Effect} from 'vrf'
 
 export default (
   {
-    baseUrl = '/', 
-    idFromRoute = (form) => form.$route.params.id,
+    baseUrl = '', 
     client = 'axios',
     clientAdapter = clientAdapters[client],
     useJsonPostfix = true
