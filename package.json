@@ -2,10 +2,10 @@
   "name": "vrf-rest",
   "version": "0.3.6-effects.3",
   "description": "REST effect for vrf form engine",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest --no-cache",
-    "build": "npx tsc ./src/index.ts --outDir ./lib --target es6 --moduleResolution node",
+    "build": "npx webpack build",
     "pub": "npm run build && npm publish"
   },
   "author": "",
@@ -29,8 +29,11 @@
     "coffee-jest": "0.0.0",
     "coffeescript": "^2.5.1",
     "jest": "^26.6.3",
+    "ts-loader": "^9.2.6",
     "typescript": "^4.5.2",
-    "vrf": "^0.50.1-effects.15"
+    "vrf": "^0.50.1-effects.15",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
   },
   "jest": {
     "setupFilesAfterEnv": [
