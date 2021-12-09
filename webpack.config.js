@@ -19,5 +19,6 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'commonjs2'
   },
-  mode: 'production'
+  mode: 'production',
+  target: ['web', 'es5']
 }
