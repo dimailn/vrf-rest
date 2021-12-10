@@ -29,6 +29,7 @@
     "coffee-jest": "0.0.0",
     "coffeescript": "^2.5.1",
     "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.2",
     "vrf": "^0.50.1-effects.15",
@@ -41,10 +42,12 @@
     ],
     "moduleFileExtensions": [
       "js",
-      "coffee"
+      "coffee",
+      "ts"
     ],
     "transform": {
-      "^.+\\.coffee$": "./node_modules/coffee-jest"
+      "^.+\\.coffee$": "./node_modules/coffee-jest",
+      "^.+\\.ts$": "ts-jest"
     },
     "testMatch": [
       "**/__tests__/**/*.js(x)",

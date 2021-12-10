@@ -1,4 +1,4 @@
-import VrfRest from '../src'
+import vrfRest from '../src'
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
 
@@ -36,158 +36,95 @@ mock.onGet("/categories.json").reply(200, [
   }
 ])
 
-vrfRest = null
-FormMock = {
-  $http: axios
-  name: 'Todo'
-}
 
-beforeEach ->
-  VrfRestMiddleware = VrfRest(
-    idFromRoute: -> 1
-  )
 
-  vrfRest = new VrfRestMiddleware('Todo', FormMock)
+getEffectWrapper = (formFields = {}) ->
+    form = {
+      $http: axios
+      name: 'Todo'
+      ...formFields
+    }
+    listeners = {}
+    context = {
+      ...([
+        'onLoadSources'
+        'onLoadSource'
+        'onLoad'
+        'onCreate'
+        'onUpdate'
+        'onExecuteAction'
+      ].reduce(
+        (subscribers, name) =>
+          subscribers[name] = (listener) -> listeners[name] = listener
+          subscribers 
+        {}
+      ))
+      showMessage: () => 
+      form
+      strings: {
+        urlResourceName: () => 'todo'
+        urlResourceCollectionName: () => 'todos'
+      }
+    }
 
+    {
+      instance: vrfRest().effect(context)
+      listeners
+    }
 
 describe 'VrfRest', ->
   it 'loads data', ->
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> 1
-    )
+    wrapper = getEffectWrapper()
 
-    CreateFormMock = {
-      ...FormMock
-      implicit: true
-    }
-
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
-
-    resource = await vrfRest.load()
+    resource = await wrapper.listeners.onLoad(1)
 
     expect(resource).toEqual({ id: 1, title: 'Something' })
 
   it 'loads sources', ->
-    sources = await vrfRest.loadSources(['types', 'categories'])
+    wrapper = getEffectWrapper()
+
+    sources = await wrapper.listeners.onLoadSources(['types', 'categories'])
 
     expect(sources.types.length).toBe 2
     expect(sources.categories.length).toBe 1
 
-  it 'doesnt load data if new entity', ->
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> null
-    )
-
-    getSpy = jest.spyOn(axios, 'get')
-
-    CreateFormMock = {
-      ...FormMock
-      setSyncProp: jest.fn()
-      $resource: {
-        title: ''
-      }
-    }
-
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
-
-    result = await vrfRest.load()
-
-    expect(result).toBe(CreateFormMock.$resource)
-    expect(CreateFormMock.setSyncProp).not.toBeCalled()
-    expect(getSpy).not.toBeCalled()
 
   it 'creates resource', ->
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> null
-    )
+    wrapper = getEffectWrapper()
 
-    CreateFormMock = {
-      ...FormMock
-      preserialize: ->
-        {
-          title: 'Test'
-        }
-      setSyncProp: jest.fn()
-    }
+    id = await wrapper.listeners.onCreate({title: 'Test'})
 
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+    expect(id).toEqual([true, 2])
 
-    await vrfRest.save()
-
-    expect(CreateFormMock.setSyncProp).toBeCalledWith('resource', {id: 2, title: 'Test'})
-
-  it 'creates resource and redirect', ->
-    redirectTo = jest.fn()
-
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> null
-      redirectTo: redirectTo
-    )
-
-    CreateFormMock = {
-      ...FormMock
-      preserialize: ->
-        {
-          title: 'Test'
-        }
-      setSyncProp: jest.fn()
-      implicit: true
-    }
-
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
-
-    await vrfRest.save()
-
-    expect(redirectTo).toBeCalledWith("/todos/2")
 
   it 'updates resource', ->
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> 1
-    )
-
-    CreateFormMock = {
-      ...FormMock
-      resource: {
-        id: 1
-        title: 'Test2'
-      }
-      preserialize: -> @resource
-      setSyncProp: jest.fn()
-    }
-
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+    wrapper = getEffectWrapper(resourceId: -> 1)
 
     mock.onGet("/todos/1.json").reply(200,  { id: 1, title: 'Test2' })
     mock.onPatch("/todos/1.json").reply(200,  { id: 1, title: 'Test2' })
 
 
-    await vrfRest.save()
-
-    expect(CreateFormMock.setSyncProp).toBeCalledWith('resource', {id: 1, title: 'Test2'})
-
-  it 'handles errors', ->
-    VrfRestMiddleware = VrfRest(
-      idFromRoute: -> 1
-    )
-
-    CreateFormMock = {
-      ...FormMock
-      resource: {
+    result = await wrapper.listeners.onUpdate(
+      {
         id: 1
         title: 'Test2'
       }
-      preserialize: -> @resource
-      setSyncProp: jest.fn()
-      $set: (obj, field, value) -> obj[field] = value
-    }
+    )
 
-    vrfRest = new VrfRestMiddleware('Todo', CreateFormMock)
+    expect(result).toEqual([ true, { id: 1, title: 'Test2' } ])
+  it 'handles errors', ->
+    wrapper = getEffectWrapper(
+      resourceId: -> 1
+      $set: (object, name, value) -> object[name] = value
+    )
 
     mock.onGet("/todos/1.json").reply(200,  { id: 1, title: 'Test2' })
     mock.onPatch("/todos/1.json").reply(422,  errors: { title: ['Is incorrect'] })
 
-
-    [ok, errors] = await vrfRest.save()
+    [ok, errors] = await wrapper.listeners.onUpdate({
+      id: 1
+      title: 'Test2'
+    })
 
     expect(ok).toBe false
     expect(errors).toEqual(title: ['Is incorrect'])
