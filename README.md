@@ -3,5 +3,5 @@
 
 # vrf-rest
 
-REST middleware for [vrf](https://github.com/dimailn/vrf).
+REST API for [vrf](https://github.com/dimailn/vrf).
 
