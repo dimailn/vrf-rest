@@ -1,11 +1,11 @@
 {
   "name": "vrf-rest",
-  "version": "0.3.5",
-  "description": "REST middleware for vrf form engine",
-  "main": "lib/index.js",
+  "version": "0.3.6-effects.5",
+  "description": "REST effect for vrf form engine",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest --no-cache",
-    "build": "coffee -o lib/ -c src/",
+    "build": "npx webpack build",
     "pub": "npm run build && npm publish"
   },
   "author": "",
@@ -15,8 +15,6 @@
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",
     "pluralize": "^8.0.0",
-    "rails-parse-dates": "^1.0.0",
-    "rails-serialize-dates": "^0.2.0",
     "url-join": "^4.0.1"
   },
   "devDependencies": {
@@ -30,7 +28,13 @@
     "babel-preset-stage-0": "^6.24.1",
     "coffee-jest": "0.0.0",
     "coffeescript": "^2.5.1",
-    "jest": "^26.6.3"
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.2",
+    "vrf": "^0.50.1-effects.15",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
   },
   "jest": {
     "setupFilesAfterEnv": [
@@ -38,10 +42,12 @@
     ],
     "moduleFileExtensions": [
       "js",
-      "coffee"
+      "coffee",
+      "ts"
     ],
     "transform": {
-      "^.+\\.coffee$": "./node_modules/coffee-jest"
+      "^.+\\.coffee$": "./node_modules/coffee-jest",
+      "^.+\\.ts$": "ts-jest"
     },
     "testMatch": [
       "**/__tests__/**/*.js(x)",
