@@ -15,7 +15,8 @@ export default (
     baseUrl = '', 
     client = 'axios',
     clientAdapter = clientAdapters[client],
-    useJsonPostfix = true
+    useJsonPostfix = true,
+    extractErrors = (data) => data?.errors
   } = {}
 ) : Effect => {
   return {
@@ -120,7 +121,7 @@ export default (
         } catch (e) {
           const {status, data} = clientAdapterInstance().statusAndDataFromException(e)
           if (status) {
-            return [false, handleErrors(data?.errors || [`HTTP error ${status}`])]
+            return [false, handleErrors(extractErrors(data) || [`HTTP error ${status}`])]
           } else {
             throw e
           }
