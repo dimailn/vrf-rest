@@ -14,7 +14,7 @@ import {serialize} from 'object-to-formdata'
 
 function objectContains(obj, predicate) {
   const isObject = val =>
-    val && typeof val === 'object' && !Array.isArray(val);
+    val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date) && !(val instanceof File);
 
   const contains = (obj = {}) => {
     for (let pair of Object.entries(obj)) {
