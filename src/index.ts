@@ -10,13 +10,50 @@ import {ClientAdapter, Id} from './client-adapters/types'
 
 import {Effect} from 'vrf'
 
+import {serialize} from 'object-to-formdata'
+
+function objectContains(obj, predicate) {
+  const isObject = val =>
+    val && typeof val === 'object' && !Array.isArray(val);
+
+  const contains = (obj = {}) => {
+    for (let pair of Object.entries(obj)) {
+      const [key, value] = pair
+
+      if(value instanceof Array){
+        for(let object of value){
+          if(contains(object)){
+            return true
+          }
+        }
+      }
+
+      else if(isObject(value)){
+        if(contains(value)){
+          return true
+        }
+      }
+
+      else if(predicate(key, value)){
+        return true
+      }
+
+    }
+
+    return false
+  }
+
+  return contains(obj)
+}
+
 export default (
   {
-    baseUrl = '', 
+    baseUrl = '',
     client = 'axios',
     clientAdapter = clientAdapters[client],
     useJsonPostfix = true,
-    extractErrors = (data) => data?.errors
+    extractErrors = (data) => data?.errors,
+    useFormDataAlways = false
   } = {}
 ) : Effect => {
   return {
@@ -114,9 +151,14 @@ export default (
 
       const aroundSave = async <T>(resource: object, saver: (body: object) => Promise<T>) : Promise<[boolean, any]> => {
         try {
-          const body = {
+          let body : any = {
             [`${form.rootName || decamelize(form.name)}`]: resource
           }
+
+          if(useFormDataAlways || objectContains(resource, (_, value) => value instanceof File)){
+            body = serialize(body)
+          }
+
           return [true, await saver(body)]
         } catch (e) {
           const {status, data} = clientAdapterInstance().statusAndDataFromException(e)
@@ -143,7 +185,7 @@ export default (
         if (!id && form.isNew()) {
           return Promise.resolve({})
         }
-    
+
         return clientAdapterInstance().get(resourceUrlWithJson(id))
       })
 
