@@ -158,6 +158,20 @@ export default (
 
           if(useFormDataAlways || objectContains(resource, (_, value) => value instanceof File)){
             body = serialize(decamelizeKeys(body))
+
+            for(let [key, value] of body.entries()) { 
+              if(!(value instanceof File)){
+                body.remove(key)
+              }
+            }
+
+            body.append("_json", JSON.stringify(decamelizeKeys(resource, (key, value) => {
+              if(value instanceof File || value instanceof Blob){
+                return
+              }
+
+              return value
+            })))
           }
 
           return [true, await saver(body)]
