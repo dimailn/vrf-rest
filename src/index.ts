@@ -161,7 +161,7 @@ export default (
 
             for(let [key, value] of body.entries()) { 
               if(!(value instanceof File)){
-                body.remove(key)
+                body.delete(key)
               }
             }
 
