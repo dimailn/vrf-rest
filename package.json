@@ -15,8 +15,8 @@
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",
     "pluralize": "^8.0.0",
-    "url-join": "^4.0.1",
-    "object-to-formdata": "^4.4.2"
+    "recursive-iterator": "^3.3.0",
+    "url-join": "^4.0.1"
   },
   "devDependencies": {
     "axios": "0.21.2",

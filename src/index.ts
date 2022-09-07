@@ -11,7 +11,7 @@ import {ClientAdapter, Id} from './client-adapters/types'
 
 import {Effect} from 'vrf'
 
-import {serialize} from 'object-to-formdata'
+import RecursiveIterator from 'recursive-iterator'
 
 function objectContains(obj, predicate) {
   const isObject = val =>
@@ -46,6 +46,24 @@ function objectContains(obj, predicate) {
 
   return contains(obj)
 }
+
+
+const pathToFormDataKey = (path) => path.reduce((str, el, i) => {
+  if(i === 0){
+    return el
+  }
+
+  if(typeof el === 'string'){
+    return str + `[${el}]`
+  }
+
+  if(typeof el === 'number'){
+    return str + '[]'
+  }
+
+  throw 'Unknown path element type'
+}, "")
+
 
 export default (
   {
@@ -150,6 +168,7 @@ export default (
         return clientAdapterInstance().get(sourceUrl)
       }
 
+
       const aroundSave = async <T>(resource: object, saver: (body: object) => Promise<T>) : Promise<[boolean, any]> => {
         try {
           let body : any = {
@@ -157,21 +176,26 @@ export default (
           }
 
           if(useFormDataAlways || objectContains(resource, (_, value) => value instanceof File)){
-            body = serialize(decamelizeKeys(body))
+            const formData = new FormData()
+            const iterator = new RecursiveIterator(body)
 
-            for(let [key, value] of body.entries()) { 
-              if(!(value instanceof File)){
-                body.delete(key)
+            for(let {node, path} of iterator){
+              const key = path[path.length - 1]
+ 
+              if(node instanceof File) {
+                formData.append(pathToFormDataKey(path), node)
               }
             }
 
-            body.append("_json", JSON.stringify(decamelizeKeys(resource), (key, value) => {
+            formData.append("_json", JSON.stringify(decamelizeKeys(body), (key, value) => {
               if(value instanceof File || value instanceof Blob){
                 return
               }
 
               return value
             }))
+
+            return [true, await saver(formData)]
           }
 
           return [true, await saver(body)]
