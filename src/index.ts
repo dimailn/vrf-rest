@@ -165,13 +165,13 @@ export default (
               }
             }
 
-            body.append("_json", JSON.stringify(decamelizeKeys(resource, (key, value) => {
+            body.append("_json", JSON.stringify(decamelizeKeys(resource), (key, value) => {
               if(value instanceof File || value instanceof Blob){
                 return
               }
 
               return value
-            })))
+            }))
           }
 
           return [true, await saver(body)]
