@@ -1,5 +1,6 @@
 import {
-  decamelize
+  decamelize,
+  decamelizeKeys
 } from 'humps';
 
 import urljoin from 'url-join'
@@ -156,7 +157,7 @@ export default (
           }
 
           if(useFormDataAlways || objectContains(resource, (_, value) => value instanceof File)){
-            body = serialize(body)
+            body = serialize(decamelizeKeys(body))
           }
 
           return [true, await saver(body)]
