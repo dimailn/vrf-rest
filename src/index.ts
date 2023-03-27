@@ -83,6 +83,7 @@ export default (
       onLoad,
       onCreate,
       onUpdate,
+      onSave,
       onLoadSource,
       onLoadSources,
       onExecuteAction,
@@ -104,19 +105,40 @@ export default (
 
       const baseUrlWithNamespace = () => form.namespace ? urljoin(baseUrl, form.namespace) : baseUrl
 
-      const resourceUrl = (id: string | number) => urljoin(
-        baseUrlWithNamespace(),
-        isSingleResource() ? urlResourceName() : urljoin(urlResourceCollectionName(), id.toString())
+      const resourceUrl = (id: string | number) => {
+        if (!isSingleResource() && !id && !isAction()) {
+          throw '[vrf-rest] For non-single resource you should specify id'
+        }
+
+        return urljoin(
+          baseUrlWithNamespace(),
+          isSingleResource() ? urlResourceName() : urljoin(urlResourceCollectionName(), id.toString())
+        )
+      }
+
+      const withJson = (url) => useJsonPostfix ? `${url}.json` : url
+
+      const resourceUrlWithJson = (id: string | number) => withJson(resourceUrl(id))
+
+      const collectionUrl = () => withJson(
+        urljoin(baseUrlWithNamespace(), urlResourceCollectionName())
       )
 
-      const resourceUrlWithJson = (id: string | number) => useJsonPostfix ? resourceUrl(id) + '.json' : resourceUrl(id)
+      const actionUrl = () => {
+        const { name, single,  rfId } = form
+        const [basePath, actionPath] = name.split('#').map(decamelize)
+        const id = single ? null : rfId
 
-      const collectionUrl = () => {
-        const collectionUrl = urljoin(baseUrlWithNamespace(), urlResourceCollectionName())
-        if (!useJsonPostfix) {
-          return collectionUrl
-        }
-        return collectionUrl + '.json'
+        return withJson(urljoin(
+          [
+            baseUrlWithNamespace(),
+            basePath,
+            id,
+            actionPath
+          ]
+            .filter(Boolean)
+            .map(String)
+        ))
       }
 
       const concatAndShowErrorMessage = (errors) => showErrorMessage(errors.join(";"))
@@ -158,6 +180,8 @@ export default (
 
       const isSingleResource = () => form.single
 
+      const isAction = () => form.name.includes("#")
+
       const loadSource = (name) => {
         name = decamelize(name)
         let sourceUrl = urljoin(baseUrl, name)
@@ -181,7 +205,7 @@ export default (
 
             for(let {node, path} of iterator){
               const key = path[path.length - 1]
- 
+
               if(node instanceof File) {
                 formData.append(pathToFormDataKey(path), node)
               }
@@ -225,7 +249,21 @@ export default (
           return Promise.resolve({})
         }
 
+        if(isAction()) {
+          return Promise.resolve(form.$resource)
+        }
+
         return clientAdapterInstance().get(resourceUrlWithJson(id))
+      })
+
+      onSave((resource) => {
+        if(!isAction()){
+          return undefined
+        }
+
+        return aroundSave<Object>(resource, async (body: object) => {
+          return await clientAdapterInstance().post(actionUrl(), body)
+        })
       })
 
       onCreate(async (resource) => {
