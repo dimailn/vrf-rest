@@ -72,7 +72,8 @@ export default (
     clientAdapter = clientAdapters[client],
     useJsonPostfix = true,
     extractErrors = (data) => data?.errors,
-    useFormDataAlways = false
+    useFormDataAlways = false,
+    noWrapResource = false
   } = {}
 ) : Effect => {
   return {
@@ -195,8 +196,8 @@ export default (
 
       const aroundSave = async <T>(resource: object, saver: (body: object) => Promise<T>) : Promise<[boolean, any]> => {
         try {
-          let body : any = {
-            [`${form.rootName || decamelize(form.name)}`]: resource
+          let body : any = noWrapResource ? resource : {
+            [`${form.rootName || decamelize(form.name.split("#")[0])}`]: resource
           }
 
           if(useFormDataAlways || objectContains(resource, (_, value) => value instanceof File)){
