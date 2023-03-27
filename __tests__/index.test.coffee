@@ -53,13 +53,14 @@ getEffectWrapper = (formFields = {}) ->
         'onCreate'
         'onUpdate'
         'onExecuteAction'
+        'onSave'
       ].reduce(
         (subscribers, name) =>
           subscribers[name] = (listener) -> listeners[name] = listener
-          subscribers 
+          subscribers
         {}
       ))
-      showMessage: () => 
+      showMessage: () =>
       form
       strings: {
         urlResourceName: () => 'todo'
