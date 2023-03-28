@@ -299,7 +299,7 @@ export default (
           if (data != null ? data.$message : void 0) {
             showErrorMessage(data.$message);
           }
-          return Promise.reject({status, data})
+          return {status, data}
         })
       })
     }
