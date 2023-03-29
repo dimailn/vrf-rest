@@ -26,7 +26,7 @@ export default {
       return {
         status: undefined,
         data: undefined,
-        statusHandle: 'NETWORK_ERROR'
+        statusHandle: 'NETWORK_FAILURE'
       }
     }
 
