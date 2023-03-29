@@ -1,6 +1,7 @@
 interface StatusAndData {
   status: number
   data: any
+  statusHandle: string
 }
 
 
@@ -10,6 +11,6 @@ export interface ClientAdapter {
   get: (...args) => Promise<any>
   post: (...args) => Promise<{id: Id}>
   patch: (...args) => Promise<object>
-  statusAndDataFromException: (e) => StatusAndData
+  statusesAndDataFromException: (e) => StatusAndData
   executeAction: (url, {method, data, params}) => Promise<any>
 }

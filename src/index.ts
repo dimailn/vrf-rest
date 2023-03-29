@@ -225,7 +225,7 @@ export default (
 
           return [true, await saver(body)]
         } catch (e) {
-          const {status, data} = clientAdapterInstance().statusAndDataFromException(e)
+          const {status, data} = clientAdapterInstance().statusesAndDataFromException(e)
           if (status) {
             return [false, handleErrors(extractErrors(data) || [`HTTP error ${status}`])]
           } else {
@@ -289,19 +289,20 @@ export default (
           actionUrl = urljoin(actionUrl, decamelize(postfix))
         }
 
-        return clientAdapterInstance().executeAction(actionUrl, {method, data, params}).then(({status, data}) => {
-          if (data && data.$message) {
-            showSuccessMessage(data.$message)
-          }
-          return {status, data}
-        }).catch((e) => {
-          const {status, data} = clientAdapterInstance().statusAndDataFromException(e)
-          if (data != null ? data.$message : void 0) {
-            showErrorMessage(data.$message);
-          }
-          return {status, data}
+        return clientAdapterInstance().executeAction(actionUrl, {method, data, params})
+          .then(({status, data, statusHandle}) => {
+            if (data && data.$message) {
+              showSuccessMessage(data.$message)
+            }
+            return {status, data, statusHandle}
+          }).catch((e) => {
+            const {status, data, statusHandle} = clientAdapterInstance().statusesAndDataFromException(e)
+            if (data != null ? data.$message : void 0) {
+              showErrorMessage(data.$message);
+            }
+            return {status, data, statusHandle}
+          })
         })
-      })
     }
   }
 }

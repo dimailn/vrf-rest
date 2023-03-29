@@ -1,4 +1,5 @@
 import {ClientAdapter} from './types'
+import mapStatus from '../map-status'
 
 export default {
   get: function(...args) {
@@ -16,13 +17,23 @@ export default {
       return data;
     })
   },
-  statusAndDataFromException: function(e) {
+  statusesAndDataFromException(e) {
     if (!e.response) {
       return {};
     }
+
+    if(e.toJSON().message === 'Network Error') {
+      return {
+        status: undefined,
+        data: undefined,
+        statusHandle: 'NETWORK_ERROR'
+      }
+    }
+
     return {
       status: e.response.status,
-      data: e.response.data
+      data: e.response.data,
+      statusHandle: mapStatus(e.response.status)
     }
   },
   executeAction: function(url, {method, data, params}) {

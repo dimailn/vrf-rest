@@ -16,10 +16,11 @@ export default {
       return body;
     }).promise
   },
-  statusAndDataFromException: function(e) {
+  statusesAndDataFromException(e) {
     return {
       status: e.status,
-      data: e.body
+      data: e.body,
+      statusHandle: undefined
     }
   }
 } as ClientAdapter
