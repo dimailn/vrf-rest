@@ -18,16 +18,16 @@ export default {
     })
   },
   statusesAndDataFromException(e) {
-    if (!e.response) {
-      return {};
-    }
-
     if(e.toJSON().message === 'Network Error') {
       return {
         status: undefined,
         data: undefined,
         statusHandle: 'NETWORK_FAILURE'
       }
+    }
+
+    if (!e.response) {
+      return {}
     }
 
     return {
