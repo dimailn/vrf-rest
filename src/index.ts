@@ -171,7 +171,9 @@ export default (
           if (errorsHash[field] == null) {
             form.$set(errorsHash, field, [])
           }
-          errorsHash[field].push(error[0])
+          errorsHash[field] = [
+            ...new Set(errorsHash[field].concat(typeof error === 'string' ? [error] : error))
+          ]
         }
         if (baseErrors.length) {
           concatAndShowErrorMessage(baseErrors)
