@@ -1,6 +1,6 @@
 {
   "name": "vrf-rest",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "REST effect for vrf form engine",
   "main": "dist/index.js",
   "scripts": {
