@@ -37,6 +37,6 @@ export default {
     }
   },
   executeAction: function(url, {method, data, params}) {
-    return this.$http({method, url, data, params});
+    return this.$http({method, url, data, params}).then((response) => ({...response, statusHandle: 'SUCCESSFUL'}))
   }
 } as ClientAdapter
