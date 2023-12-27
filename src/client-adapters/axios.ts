@@ -7,13 +7,17 @@ export default {
       return data;
     })
   },
-  post: function(...args) {
-    return this.$http.post(...args).then(function({data}) {
+  post: function(url, body) {
+    const options = body instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
+
+    return this.$http.post(url, body, options).then(function({data}) {
       return data;
     })
   },
-  patch: function(...args) {
-    return this.$http.patch(...args).then(function({data}) {
+  patch: function(url, body) {
+    const options = body instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
+
+    return this.$http.patch(url, body, options).then(function({data}) {
       return data;
     })
   },
