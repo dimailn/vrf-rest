@@ -59,6 +59,20 @@ Sometimes you need to execute action on resource without getting data, for this 
 This form sends ```POST``` request to ```/todos/1/add_comment```. 
 
 
+If a form contains files ```vrf-rest``` uses multiplaylod format which allows to send files and keep data types of other form elements at the same time. Example of a mixin for rails controller to support the format
+
+
+```ruby
+
+module MultipayloadController
+  def params
+    ActionController::Parameters.new(JSON.parse(super[:_json] || '{}').deep_merge(super.except(:_json)))
+  end
+end
+
+```
+
+
 
 
 
