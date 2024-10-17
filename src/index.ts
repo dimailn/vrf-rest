@@ -169,7 +169,11 @@ export default (
             baseErrors.push(error)
           }
           if (errorsHash[field] == null) {
-            form.$set(errorsHash, field, [])
+            if(form.$set) {
+              form.$set(errorsHash, field, [])
+            } else {
+              errorsHash[field] = []
+            }
           }
           errorsHash[field] = [
             ...new Set(errorsHash[field].concat(typeof error === 'string' ? [error] : error))
